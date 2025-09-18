@@ -1,0 +1,30 @@
+/* Global Responsive Styles */
+@media (max-width: 768px) {
+  .responsive-heading {
+    font-size: clamp(1.5rem, 4vw, 3rem) !important;
+  }
+  
+  .responsive-text {
+    font-size: clamp(0.875rem, 2.5vw, 1.125rem) !important;
+  }
+  
+  .responsive-button {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .responsive-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-heading {
+    font-size: clamp(1.25rem, 5vw, 2.5rem) !important;
+  }
+  
+  .responsive-text {
+    font-size: clamp(0.75rem, 3vw, 1rem) !important;
+  }
+}
