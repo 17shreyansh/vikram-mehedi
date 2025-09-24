@@ -22,6 +22,7 @@ import { Autoplay, Pagination, Navigation, EffectCoverflow } from 'swiper/module
 import ImageGallery from 'react-image-gallery'
 import { galleryAPI } from '../../services/api'
 import { getFallbackImage } from '../../utils/fallbackData'
+import { getImageUrl } from '../../utils/imageUtils'
 import Spinner from '../common/Spinner'
 
 import 'swiper/css'
@@ -64,8 +65,8 @@ const Gallery = () => {
 
   const openGallery = (images, startIndex) => {
     const galleryImages = images.map((img, idx) => ({
-      original: img.url ? `http://localhost:5000${img.url}` : getFallbackImage(idx),
-      thumbnail: img.url ? `http://localhost:5000${img.url}` : getFallbackImage(idx),
+      original: img.url ? getImageUrl(img.url) : getFallbackImage(idx),
+      thumbnail: img.url ? getImageUrl(img.url) : getFallbackImage(idx),
       description: img.title,
     }))
     setModalImages(galleryImages)
@@ -279,7 +280,7 @@ const Gallery = () => {
                         h="400px"
                       >
                         <Image
-                          src={image.url ? `http://localhost:5000${image.url}` : getFallbackImage(index)}
+                          src={image.url ? getImageUrl(image.url) : getFallbackImage(index)}
                           alt={image.title}
                           objectFit="cover"
                           w="100%"

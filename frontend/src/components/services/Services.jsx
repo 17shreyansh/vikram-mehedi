@@ -16,6 +16,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { servicesAPI } from '../../services/api'
 import { getFallbackImage } from '../../utils/fallbackData'
+import { getImageUrl } from '../../utils/imageUtils'
 import Spinner from '../common/Spinner'
 
 const MotionBox = motion(Box)
@@ -102,7 +103,7 @@ const Services = () => {
                     >
                       <AspectRatio ratio={4/3}>
                         <Image
-                          src={service.image ? `http://localhost:5000${service.image}` : getFallbackImage(0)}
+                          src={service.image ? getImageUrl(service.image) : getFallbackImage(0)}
                           alt={service.title}
                           objectFit="cover"
                           w="100%"

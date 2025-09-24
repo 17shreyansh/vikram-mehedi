@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaClock, FaCalendarAlt } from 'react-icons/fa'
+import { getApiUrl } from '../../utils/imageUtils'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import ScrollToTop from '../../components/common/ScrollToTop'
@@ -43,7 +44,7 @@ const ContactPage = () => {
     setLoading(true)
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/contact`, {
+      const response = await fetch(`${getApiUrl()}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

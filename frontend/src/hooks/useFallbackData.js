@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { checkServerStatus, fallbackGalleryData, fallbackServicesData, getRandomFallbackImage } from '../utils/fallbackData'
+import { getApiUrl } from '../utils/imageUtils'
 
 const getFallbackData = (type) => {
   switch (type) {
@@ -26,7 +27,7 @@ export const useFallbackData = (dataType = 'gallery') => {
 
       if (serverOnline) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/${dataType}`)
+          const response = await fetch(`${getApiUrl()}/${dataType}`)
           if (response.ok) {
             const serverData = await response.json()
             setData(serverData.items || serverData.services || serverData || [])
@@ -61,7 +62,7 @@ export const useHeroImage = () => {
 
       if (serverOnline) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/hero-image`)
+          const response = await fetch(`${getApiUrl()}/hero-image`)
           if (response.ok) {
             const data = await response.json()
             setHeroImage(data.image)

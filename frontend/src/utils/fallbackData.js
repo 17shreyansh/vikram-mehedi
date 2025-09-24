@@ -128,7 +128,9 @@ export const getFallbackImage = (index) => {
 // Check if server is online
 export const checkServerStatus = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/health`, {
+    // Import here to avoid circular dependency
+    const { getApiUrl } = await import('./imageUtils')
+    const response = await fetch(`${getApiUrl()}/health`, {
       method: 'GET',
       timeout: 5000
     })

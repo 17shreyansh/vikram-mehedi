@@ -48,6 +48,7 @@ import {
 } from '@chakra-ui/react'
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaEllipsisV, FaEye } from 'react-icons/fa'
 import { galleryAPI } from '../../services/api'
+import { getImageUrl } from '../../utils/imageUtils'
 import AdminLayout from '../components/AdminLayout'
 
 const AdminGallery = () => {
@@ -369,7 +370,7 @@ const AdminGallery = () => {
                   </Td>
                   <Td>
                     <Image
-                      src={`http://localhost:5000${item.url}`}
+                      src={getImageUrl(item.url)}
                       alt={item.alt || item.title}
                       boxSize="60px"
                       objectFit="cover"
@@ -399,7 +400,7 @@ const AdminGallery = () => {
                     <Menu>
                       <MenuButton as={IconButton} icon={<FaEllipsisV />} size="sm" />
                       <MenuList>
-                        <MenuItem icon={<FaEye />} onClick={() => window.open(`http://localhost:5000${item.url}`, '_blank')}>
+                        <MenuItem icon={<FaEye />} onClick={() => window.open(getImageUrl(item.url), '_blank')}>
                           View
                         </MenuItem>
                         <MenuItem icon={<FaEdit />} onClick={() => handleEdit(item)}>

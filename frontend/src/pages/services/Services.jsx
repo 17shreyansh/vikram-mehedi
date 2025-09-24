@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 import { FaCheck, FaClock, FaRupeeSign, FaStar } from 'react-icons/fa'
 import { servicesAPI } from '../../services/api'
 import { getFallbackImage } from '../../utils/fallbackData'
+import { getImageUrl } from '../../utils/imageUtils'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import ScrollToTop from '../../components/common/ScrollToTop'
@@ -124,7 +125,7 @@ const ServicesPage = () => {
                 )}
                 
                 <Image
-                  src={service.image ? `http://localhost:5000${service.image}` : getFallbackImage(index)}
+                  src={service.image ? getImageUrl(service.image) : getFallbackImage(index)}
                   alt={service.title}
                   h="250px"
                   w="100%"
