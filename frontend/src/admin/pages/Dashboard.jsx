@@ -149,6 +149,9 @@ const Dashboard = () => {
                 <Button block icon={<FileTextOutlined />}>
                   <Link to="/admin/blogs">Manage Blogs</Link>
                 </Button>
+                <Button block icon={<MailOutlined />}>
+                  <Link to="/admin/contacts">View Messages</Link>
+                </Button>
               </Space>
             </Card>
           </Col>

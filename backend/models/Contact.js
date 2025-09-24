@@ -20,7 +20,10 @@ const contactSchema = new mongoose.Schema({
   service: {
     type: String,
     required: true,
-    enum: ['Bridal Mehndi', 'Arabic Mehndi', 'Indo-Western', 'Party Mehndi', 'General Inquiry']
+    enum: ['bridal', 'arabic', 'party', 'traditional', 'corporate']
+  },
+  eventDate: {
+    type: Date
   },
   message: {
     type: String,

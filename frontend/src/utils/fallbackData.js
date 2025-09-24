@@ -128,7 +128,7 @@ export const getFallbackImage = (index) => {
 // Check if server is online
 export const checkServerStatus = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/health`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/health`, {
       method: 'GET',
       timeout: 5000
     })

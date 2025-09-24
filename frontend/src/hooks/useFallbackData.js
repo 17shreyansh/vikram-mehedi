@@ -26,10 +26,10 @@ export const useFallbackData = (dataType = 'gallery') => {
 
       if (serverOnline) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/${dataType}`)
+          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/${dataType}`)
           if (response.ok) {
             const serverData = await response.json()
-            setData(serverData)
+            setData(serverData.items || serverData.services || serverData || [])
           } else {
             throw new Error('Server response not ok')
           }
@@ -61,7 +61,7 @@ export const useHeroImage = () => {
 
       if (serverOnline) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/hero-image`)
+          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/hero-image`)
           if (response.ok) {
             const data = await response.json()
             setHeroImage(data.image)

@@ -43,15 +43,29 @@ const ContactPage = () => {
     setLoading(true)
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({
-        title: 'Message sent successfully!',
-        description: 'We\'ll get back to you within 24 hours.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          phone: formData.phone.startsWith('+91') ? formData.phone : `+91${formData.phone}`
+        })
       })
-      setFormData({ name: '', email: '', phone: '', service: '', eventDate: '', message: '' })
+      
+      if (response.ok) {
+        toast({
+          title: 'Message sent successfully!',
+          description: 'We\'ll get back to you within 24 hours.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        })
+        setFormData({ name: '', email: '', phone: '', service: '', eventDate: '', message: '' })
+      } else {
+        throw new Error('Failed to send message')
+      }
     } catch (error) {
       toast({
         title: 'Error sending message',

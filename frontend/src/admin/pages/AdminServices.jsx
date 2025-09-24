@@ -90,6 +90,7 @@ const AdminServices = () => {
     icon: '',
     sortOrder: 0
   })
+  const [imageFile, setImageFile] = useState(null)
   const [newFeature, setNewFeature] = useState('')
   const toast = useToast()
 
@@ -136,11 +137,20 @@ const AdminServices = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const submitData = {
-        ...formData,
-        minPrice: parseFloat(formData.minPrice),
-        maxPrice: parseFloat(formData.maxPrice),
-        sortOrder: parseInt(formData.sortOrder) || 0
+      const submitData = new FormData()
+      
+      // Add all form fields
+      Object.keys(formData).forEach(key => {
+        if (key === 'features') {
+          submitData.append(key, JSON.stringify(formData[key]))
+        } else {
+          submitData.append(key, formData[key])
+        }
+      })
+      
+      // Add image file if selected
+      if (imageFile) {
+        submitData.append('image', imageFile)
       }
 
       if (editingService) {
@@ -152,6 +162,15 @@ const AdminServices = () => {
           duration: 3000
         })
       } else {
+        if (!imageFile) {
+          toast({
+            title: 'Error',
+            description: 'Please select an image',
+            status: 'error',
+            duration: 3000
+          })
+          return
+        }
         await servicesAPI.create(submitData)
         toast({
           title: 'Success',
@@ -260,6 +279,7 @@ const AdminServices = () => {
       icon: '',
       sortOrder: 0
     })
+    setImageFile(null)
     setNewFeature('')
     setEditingService(null)
   }
@@ -559,26 +579,29 @@ const AdminServices = () => {
                   </Wrap>
                 </FormControl>
 
-                <HStack w="100%">
-                  <FormControl>
-                    <FormLabel>Image URL</FormLabel>
-                    <Input
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://..."
-                    />
-                  </FormControl>
+                <FormControl isRequired={!editingService}>
+                  <FormLabel>Service Image</FormLabel>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                  />
+                  {editingService && (
+                    <Text fontSize="sm" color="gray.600" mt={1}>
+                      Leave empty to keep current image
+                    </Text>
+                  )}
+                </FormControl>
 
-                  <FormControl>
-                    <FormLabel>Sort Order</FormLabel>
-                    <NumberInput>
-                      <NumberInputField
-                        value={formData.sortOrder}
-                        onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
-                      />
-                    </NumberInput>
-                  </FormControl>
-                </HStack>
+                <FormControl>
+                  <FormLabel>Sort Order</FormLabel>
+                  <NumberInput>
+                    <NumberInputField
+                      value={formData.sortOrder}
+                      onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
+                    />
+                  </NumberInput>
+                </FormControl>
 
                 <HStack w="100%" justify="space-between">
                   <FormControl display="flex" alignItems="center">

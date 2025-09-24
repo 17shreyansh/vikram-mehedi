@@ -51,11 +51,15 @@ export const validateContact = [
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('phone')
-    .isMobilePhone('en-IN')
-    .withMessage('Please provide a valid Indian phone number'),
+    .matches(/^(\+91)?[6-9]\d{9}$/)
+    .withMessage('Please provide a valid phone number'),
   body('service')
-    .isIn(['Bridal Mehndi', 'Arabic Mehndi', 'Indo-Western', 'Party Mehndi', 'General Inquiry'])
+    .isIn(['bridal', 'arabic', 'party', 'traditional', 'corporate'])
     .withMessage('Please select a valid service'),
+  body('eventDate')
+    .optional()
+    .isISO8601()
+    .toDate(),
   body('message')
     .trim()
     .isLength({ min: 10, max: 500 })

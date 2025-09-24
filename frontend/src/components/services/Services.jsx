@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -13,13 +13,32 @@ import {
   AspectRatio,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useFallbackData } from '../../hooks/useFallbackData'
+import { useNavigate } from 'react-router-dom'
+import { servicesAPI } from '../../services/api'
+import { getFallbackImage } from '../../utils/fallbackData'
 import Spinner from '../common/Spinner'
 
 const MotionBox = motion(Box)
 
 const Services = () => {
-  const { data: services, loading } = useFallbackData('services')
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchServices()
+  }, [])
+
+  const fetchServices = async () => {
+    try {
+      const response = await servicesAPI.getAll({ active: true })
+      setServices(response.services || [])
+    } catch (error) {
+      console.error('Failed to fetch services:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Box py={20} bg="background.ivory">
@@ -63,7 +82,7 @@ const Services = () => {
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8} w="100%">
               {services.map((service, index) => (
                 <MotionBox
-                  key={service.id}
+                  key={service._id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
@@ -83,7 +102,7 @@ const Services = () => {
                     >
                       <AspectRatio ratio={4/3}>
                         <Image
-                          src={service.image}
+                          src={service.image ? `http://localhost:5000${service.image}` : getFallbackImage(0)}
                           alt={service.title}
                           objectFit="cover"
                           w="100%"
@@ -99,13 +118,17 @@ const Services = () => {
                           {service.description}
                         </Text>
                         <Text color="accent.600" fontWeight="bold" fontSize="lg">
-                          {service.price}
+                          ₹{service.minPrice.toLocaleString()} - ₹{service.maxPrice.toLocaleString()}
+                        </Text>
+                        <Text color="gray.600" fontSize="sm">
+                          Duration: {service.duration}
                         </Text>
                         <Button
                           bg="primary.500"
                           color="white"
                           size="md"
                           borderRadius="full"
+                          onClick={() => navigate('/contact')}
                           _hover={{
                             bg: 'primary.600',
                             transform: 'translateY(-2px)',

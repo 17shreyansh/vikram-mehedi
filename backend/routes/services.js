@@ -1,6 +1,42 @@
 import express from 'express'
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 import Service from '../models/Service.js'
 import { authenticate as auth } from '../middleware/auth.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Ensure upload directory exists
+const uploadDir = 'uploads/services/'
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true })
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir)
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true)
+    } else {
+      cb(new Error('Only image files are allowed!'))
+    }
+  }
+})
 
 const router = express.Router()
 
@@ -58,11 +94,11 @@ router.get('/:id', async (req, res) => {
 })
 
 // Create new service
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     const {
       title, description, minPrice, maxPrice, duration, features,
-      category, popular, active, image, icon, sortOrder, seo
+      category, popular, active, icon, sortOrder, seo
     } = req.body
     
     const service = new Service({
@@ -71,11 +107,11 @@ router.post('/', auth, async (req, res) => {
       minPrice: parseFloat(minPrice),
       maxPrice: parseFloat(maxPrice),
       duration,
-      features: Array.isArray(features) ? features : features?.split(',').map(f => f.trim()) || [],
+      features: features ? JSON.parse(features) : [],
       category,
       popular: popular === 'true' || popular === true,
       active: active !== 'false',
-      image,
+      image: req.file ? `/uploads/services/${req.file.filename}` : '',
       icon,
       sortOrder: parseInt(sortOrder) || 0,
       seo: seo || {}
@@ -89,11 +125,11 @@ router.post('/', auth, async (req, res) => {
 })
 
 // Update service
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', auth, upload.single('image'), async (req, res) => {
   try {
     const {
       title, description, minPrice, maxPrice, duration, features,
-      category, popular, active, image, icon, sortOrder, seo
+      category, popular, active, icon, sortOrder, seo
     } = req.body
     
     const updateData = {
@@ -102,14 +138,18 @@ router.put('/:id', auth, async (req, res) => {
       minPrice: parseFloat(minPrice),
       maxPrice: parseFloat(maxPrice),
       duration,
-      features: Array.isArray(features) ? features : features?.split(',').map(f => f.trim()) || [],
+      features: features ? (typeof features === 'string' ? JSON.parse(features) : features) : [],
       category,
       popular: popular === 'true' || popular === true,
       active: active !== 'false',
-      image,
       icon,
       sortOrder: parseInt(sortOrder) || 0,
       seo: seo || {}
+    }
+    
+    // Only update image if new file is uploaded
+    if (req.file) {
+      updateData.image = `/uploads/services/${req.file.filename}`
     }
     
     const service = await Service.findByIdAndUpdate(req.params.id, updateData, { new: true })
@@ -126,10 +166,21 @@ router.put('/:id', auth, async (req, res) => {
 // Delete service
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const service = await Service.findByIdAndDelete(req.params.id)
+    const service = await Service.findById(req.params.id)
     if (!service) {
       return res.status(404).json({ error: 'Service not found' })
     }
+    
+    // Delete image file if exists
+    if (service.image && service.image.startsWith('/uploads/services/')) {
+      const filename = service.image.split('/').pop()
+      const filePath = path.join(__dirname, '..', 'uploads', 'services', filename)
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath)
+      }
+    }
+    
+    await Service.findByIdAndDelete(req.params.id)
     res.json({ message: 'Service deleted successfully' })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -143,6 +194,16 @@ router.post('/bulk', auth, async (req, res) => {
     
     switch (action) {
       case 'delete':
+        const services = await Service.find({ _id: { $in: ids } })
+        for (const service of services) {
+          if (service.image && service.image.startsWith('/uploads/services/')) {
+            const filename = service.image.split('/').pop()
+            const filePath = path.join(__dirname, '..', 'uploads', 'services', filename)
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath)
+            }
+          }
+        }
         await Service.deleteMany({ _id: { $in: ids } })
         break
       case 'update':

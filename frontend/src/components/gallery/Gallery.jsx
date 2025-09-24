@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -20,7 +20,8 @@ import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation, EffectCoverflow } from 'swiper/modules'
 import ImageGallery from 'react-image-gallery'
-import { useFallbackData } from '../../hooks/useFallbackData'
+import { galleryAPI } from '../../services/api'
+import { getFallbackImage } from '../../utils/fallbackData'
 import Spinner from '../common/Spinner'
 
 import 'swiper/css'
@@ -34,20 +35,37 @@ const Gallery = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [modalImages, setModalImages] = useState([])
+  const [galleryImages, setGalleryImages] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const categories = ['All', 'Bridal', 'Arabic', 'Indo-Western', 'Party']
+  const categories = ['All', 'Bridal', 'Arabic', 'Traditional', 'Party', 'Corporate']
 
-  const { data: galleryImages, isOnline, loading } = useFallbackData('gallery')
+  useEffect(() => {
+    fetchGallery()
+  }, [])
+
+  const fetchGallery = async () => {
+    try {
+      const response = await galleryAPI.getAll({ status: 'active' })
+      setGalleryImages(response.items || [])
+    } catch (error) {
+      console.error('Failed to fetch gallery:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   
   // Filter images by category
-  const filteredImages = selectedCategory === 'All' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category.toLowerCase() === selectedCategory.toLowerCase())
+  const filteredImages = Array.isArray(galleryImages) 
+    ? (selectedCategory === 'All' 
+        ? galleryImages 
+        : galleryImages.filter(img => img.category.toLowerCase() === selectedCategory.toLowerCase()))
+    : []
 
   const openGallery = (images, startIndex) => {
-    const galleryImages = images.map(img => ({
-      original: img.image || img.url,
-      thumbnail: img.image || img.url,
+    const galleryImages = images.map((img, idx) => ({
+      original: img.url ? `http://localhost:5000${img.url}` : getFallbackImage(idx),
+      thumbnail: img.url ? `http://localhost:5000${img.url}` : getFallbackImage(idx),
       description: img.title,
     }))
     setModalImages(galleryImages)
@@ -261,7 +279,7 @@ const Gallery = () => {
                         h="400px"
                       >
                         <Image
-                          src={image.image || image.url}
+                          src={image.url ? `http://localhost:5000${image.url}` : getFallbackImage(index)}
                           alt={image.title}
                           objectFit="cover"
                           w="100%"

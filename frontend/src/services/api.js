@@ -58,8 +58,12 @@ export const bookingsAPI = {
 export const servicesAPI = {
   getAll: (params = {}) => api.get('/services', { params }),
   getById: (id) => api.get(`/services/${id}`),
-  create: (data) => api.post('/services', data),
-  update: (id, data) => api.put(`/services/${id}`, data),
+  create: (data) => api.post('/services', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  update: (id, data) => api.put(`/services/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   delete: (id) => api.delete(`/services/${id}`),
   bulk: (data) => api.post('/services/bulk', data),
   getStats: () => api.get('/services/stats/overview'),

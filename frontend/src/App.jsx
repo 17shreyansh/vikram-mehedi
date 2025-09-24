@@ -28,6 +28,7 @@ const HomeEditor = lazy(() => import('./admin/pages/editors/HomeEditor'))
 const AboutPageEditor = lazy(() => import('./admin/pages/editors/AboutPageEditor'))
 const BlogEditor = lazy(() => import('./admin/pages/editors/BlogEditor'))
 const AdminBlogs = lazy(() => import('./admin/pages/AdminBlogs'))
+const AdminContacts = lazy(() => import('./admin/pages/AdminContacts'))
 const PrivacyPage = lazy(() => import('./pages/privacy/Privacy'))
 const TermsPage = lazy(() => import('./pages/terms/Terms'))
 
@@ -74,6 +75,7 @@ function App() {
                   <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
                   <Route path="/admin/bookings" element={<ProtectedRoute><AdminBookings /></ProtectedRoute>} />
                   <Route path="/admin/services" element={<ProtectedRoute><AdminServices /></ProtectedRoute>} />
+                  <Route path="/admin/contacts" element={<ProtectedRoute><AdminContacts /></ProtectedRoute>} />
 
                   <Route path="/admin/pages/home" element={<ProtectedRoute><HomeEditor /></ProtectedRoute>} />
                   <Route path="/admin/pages/about" element={<ProtectedRoute><AboutPageEditor /></ProtectedRoute>} />

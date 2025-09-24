@@ -49,6 +49,11 @@ const AdminLayout = ({ children }) => {
       label: <Link to="/admin/bookings">Bookings</Link>,
     },
     {
+      key: '/admin/contacts',
+      icon: <MailOutlined />,
+      label: <Link to="/admin/contacts">Contact Messages</Link>,
+    },
+    {
       key: '/admin/pages/home',
       icon: <EditOutlined />,
       label: <Link to="/admin/pages/home">Homepage Editor</Link>,

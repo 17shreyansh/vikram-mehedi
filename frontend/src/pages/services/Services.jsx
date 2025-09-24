@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -17,16 +17,36 @@ import {
   ListIcon,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { FaCheck, FaClock, FaRupeeSign, FaStar } from 'react-icons/fa'
-import { useFallbackData } from '../../hooks/useFallbackData'
+import { servicesAPI } from '../../services/api'
+import { getFallbackImage } from '../../utils/fallbackData'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import ScrollToTop from '../../components/common/ScrollToTop'
+import Spinner from '../../components/common/Spinner'
 
 const MotionBox = motion(Box)
 
 const ServicesPage = () => {
-  const { data: services } = useFallbackData('services')
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchServices()
+  }, [])
+
+  const fetchServices = async () => {
+    try {
+      const response = await servicesAPI.getAll({ active: true })
+      setServices(response.services || [])
+    } catch (error) {
+      console.error('Failed to fetch services:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
@@ -63,9 +83,14 @@ const ServicesPage = () => {
       <Box py={20} bg="background.ivory">
         <Container maxW="1400px">
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
-            {services.map((service, index) => (
-              <MotionBox
-                key={service.id}
+            {loading ? (
+              <Flex justify="center" py={20}>
+                <Spinner size="xl" text="Loading Services..." />
+              </Flex>
+            ) : (
+              services.map((service, index) => (
+                <MotionBox
+                  key={service._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -99,7 +124,7 @@ const ServicesPage = () => {
                 )}
                 
                 <Image
-                  src={service.image}
+                  src={service.image ? `http://localhost:5000${service.image}` : getFallbackImage(index)}
                   alt={service.title}
                   h="250px"
                   w="100%"
@@ -115,7 +140,9 @@ const ServicesPage = () => {
                     <HStack spacing={6} color="gray.600">
                       <HStack>
                         <Icon as={FaRupeeSign} />
-                        <Text fontWeight="600">{service.price}</Text>
+                        <Text fontWeight="600">
+                          ₹{service.minPrice.toLocaleString()} - ₹{service.maxPrice.toLocaleString()}
+                        </Text>
                       </HStack>
                       <HStack>
                         <Icon as={FaClock} />
@@ -127,19 +154,21 @@ const ServicesPage = () => {
                       {service.description}
                     </Text>
                     
-                    <Box w="100%">
-                      <Text fontWeight="600" color="primary.500" mb={2}>
-                        What's Included:
-                      </Text>
-                      <List spacing={1}>
-                        {service.features.map((feature, idx) => (
-                          <ListItem key={idx} fontSize="sm" color="gray.600">
-                            <ListIcon as={FaCheck} color="accent.500" />
-                            {feature}
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
+                    {service.features && service.features.length > 0 && (
+                      <Box w="100%">
+                        <Text fontWeight="600" color="primary.500" mb={2}>
+                          What's Included:
+                        </Text>
+                        <List spacing={1}>
+                          {service.features.map((feature, idx) => (
+                            <ListItem key={idx} fontSize="sm" color="gray.600">
+                              <ListIcon as={FaCheck} color="accent.500" />
+                              {feature}
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Box>
+                    )}
                     
                     <Button
                       bg="primary.500"
@@ -147,7 +176,7 @@ const ServicesPage = () => {
                       size="lg"
                       w="100%"
                       borderRadius="xl"
-                      onClick={scrollToContact}
+                      onClick={() => navigate('/contact')}
                       _hover={{
                         bg: 'primary.600',
                         transform: 'translateY(-2px)',
@@ -157,8 +186,9 @@ const ServicesPage = () => {
                     </Button>
                   </VStack>
                 </Box>
-              </MotionBox>
-            ))}
+                </MotionBox>
+              ))
+            )}
           </SimpleGrid>
         </Container>
       </Box>
@@ -226,7 +256,7 @@ const ServicesPage = () => {
               py={6}
               fontSize="lg"
               borderRadius="full"
-              onClick={scrollToContact}
+              onClick={() => navigate('/contact')}
               _hover={{
                 bg: 'accent.600',
                 transform: 'translateY(-2px)',
