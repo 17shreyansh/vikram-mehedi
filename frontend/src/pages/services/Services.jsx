@@ -32,11 +32,22 @@ const MotionBox = motion(Box)
 const ServicesPage = () => {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
+  const [homePageContent, setHomePageContent] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchServices()
+    fetchHomeContent()
   }, [])
+
+  const fetchHomeContent = async () => {
+    try {
+      const content = await pagesAPI.getBySlug('home')
+      setHomePageContent(content)
+    } catch (error) {
+      console.log('Using default footer content')
+    }
+  }
 
   const fetchServices = async () => {
     try {
@@ -269,7 +280,7 @@ const ServicesPage = () => {
         </Container>
       </Box>
 
-      <Footer />
+      <Footer pageContent={homePageContent} />
       <ScrollToTop />
     </Box>
   )

@@ -23,17 +23,31 @@ const Home = () => {
     // Smooth scroll behavior for the entire page
     document.documentElement.style.scrollBehavior = 'smooth'
     fetchPageContent()
+    
+    // Listen for admin updates
+    const handleStorageChange = (e) => {
+      if (e.key === 'pageUpdated' && e.newValue === 'home') {
+        fetchPageContent()
+        localStorage.removeItem('pageUpdated')
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
     return () => {
       document.documentElement.style.scrollBehavior = 'auto'
+      window.removeEventListener('storage', handleStorageChange)
     }
   }, [])
 
   const fetchPageContent = async () => {
     try {
+      // Add timestamp to prevent caching
       const content = await pagesAPI.getBySlug('home')
       setPageContent(content)
+      console.log('Page content loaded:', content)
     } catch (error) {
-      console.log('Using default content')
+      console.log('Using default content:', error)
     }
   }
 
@@ -169,11 +183,11 @@ const Home = () => {
           position="relative"
           zIndex={1}
         >
-          <Contact />
+          <Contact pageContent={pageContent} />
         </MotionBox>
       </Box>
       
-      <Footer />
+      <Footer pageContent={pageContent} />
       
       {/* Enhanced Scroll to Top */}
       <ScrollToTop />

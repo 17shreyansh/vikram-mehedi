@@ -46,8 +46,14 @@ const HomeEditor = () => {
       const data = await pagesAPI.getBySlug('home')
       setPageData(data)
     } catch (err) {
-      setError('Failed to load page data')
-      console.error('Error fetching page data:', err)
+      // Initialize with default structure if page doesn't exist
+      setPageData({
+        slug: 'home',
+        title: 'Home Page',
+        sections: [],
+        status: 'published'
+      })
+      console.log('Initialized with default page structure')
     } finally {
       setLoading(false)
     }
@@ -56,17 +62,24 @@ const HomeEditor = () => {
   const handleSave = async () => {
     try {
       setSaving(true)
-      await pagesAPI.update('home', pageData)
+      console.log('Saving page data:', pageData)
+      const result = await pagesAPI.update('home', pageData)
+      console.log('Save result:', result)
       toast({
         title: 'Success',
         description: 'Homepage updated successfully',
         status: 'success',
         duration: 3000
       })
+      // Trigger refresh in other tabs/windows
+      localStorage.setItem('pageUpdated', 'home')
+      // Refresh data to ensure consistency
+      await fetchPageData()
     } catch (err) {
+      console.error('Save error:', err)
       toast({
         title: 'Error',
-        description: 'Failed to save changes',
+        description: err.error || 'Failed to save changes',
         status: 'error',
         duration: 3000
       })

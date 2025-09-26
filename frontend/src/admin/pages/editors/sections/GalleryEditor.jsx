@@ -17,8 +17,8 @@ import {
   NumberInputField
 } from '@chakra-ui/react'
 
-const GalleryEditor = () => {
-  const [galleryData, setGalleryData] = useState({
+const GalleryEditor = ({ pageData, setPageData }) => {
+  const defaultGalleryData = {
     sectionTitle: 'Gallery',
     description: 'Discover our stunning collection of mehndi artistry',
     showCategories: true,
@@ -33,17 +33,44 @@ const GalleryEditor = () => {
       desktop: 3,
       large: 4
     }
-  })
+  }
+
+  const galleryData = pageData?.sections?.find(s => s.type === 'gallery')?.data || defaultGalleryData
 
   const updateField = (field, value) => {
-    setGalleryData(prev => ({ ...prev, [field]: value }))
+    if (!setPageData) return
+    
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const gallerySectionIndex = currentSections.findIndex(s => s.type === 'gallery')
+      
+      let updatedSections
+      if (gallerySectionIndex >= 0) {
+        updatedSections = currentSections.map((section, index) => 
+          index === gallerySectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'gallery',
+            title: 'Gallery Section',
+            order: 1,
+            visible: true,
+            data: { ...defaultGalleryData, [field]: value }
+          }
+        ]
+      }
+      
+      return { ...prevData, sections: updatedSections }
+    })
   }
 
   const updateGridColumns = (device, value) => {
-    setGalleryData(prev => ({
-      ...prev,
-      gridColumns: { ...prev.gridColumns, [device]: parseInt(value) }
-    }))
+    const updatedGridColumns = { ...galleryData.gridColumns, [device]: parseInt(value) }
+    updateField('gridColumns', updatedGridColumns)
   }
 
   return (

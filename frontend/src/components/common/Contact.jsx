@@ -25,21 +25,35 @@ import { contactAPI } from '../../services/api'
 
 const MotionBox = motion(Box)
 
-const Contact = () => {
+const Contact = ({ pageContent }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
   const [loading, setLoading] = useState(false)
   const toast = useToast()
 
+  // Get contact data from pageContent or use defaults
+  const contactData = pageContent?.sections?.find(s => s.type === 'contact')?.data || {
+    sectionTitle: 'Get In Touch',
+    description: 'Ready to book your mehndi session? Contact us today and let\'s create beautiful memories together',
+    contactInfo: {
+      phone: '+91 98765 43210',
+      email: 'vikram@mehndiart.com',
+      address: 'Mumbai, Maharashtra',
+      whatsapp: '+91 98765 43210',
+      instagram: '@vikrammehndi',
+      facebook: 'VikramMehndiArt'
+    }
+  }
+
   const contactInfo = [
-    { icon: FaPhone, label: 'Phone', value: '+91 98765 43210', href: 'tel:+919876543210' },
-    { icon: FaEnvelope, label: 'Email', value: 'vikram@mehndiart.com', href: 'mailto:vikram@mehndiart.com' },
-    { icon: FaMapMarkerAlt, label: 'Location', value: 'Mumbai, Maharashtra', href: '#' },
+    { icon: FaPhone, label: 'Phone', value: contactData.contactInfo.phone, href: `tel:${contactData.contactInfo.phone.replace(/\s/g, '')}` },
+    { icon: FaEnvelope, label: 'Email', value: contactData.contactInfo.email, href: `mailto:${contactData.contactInfo.email}` },
+    { icon: FaMapMarkerAlt, label: 'Location', value: contactData.contactInfo.address, href: '#' },
   ]
 
   const socialLinks = [
-    { icon: FaWhatsapp, color: 'green.500', href: 'https://wa.me/919876543210' },
-    { icon: FaInstagram, color: 'pink.500', href: 'https://instagram.com/vikrammehndi' },
-    { icon: FaFacebook, color: 'blue.500', href: 'https://facebook.com/vikrammehndi' },
+    { icon: FaWhatsapp, color: 'green.500', href: `https://wa.me/${contactData.contactInfo.whatsapp.replace(/\s/g, '')}` },
+    { icon: FaInstagram, color: 'pink.500', href: `https://instagram.com/${contactData.contactInfo.instagram.replace('@', '')}` },
+    { icon: FaFacebook, color: 'blue.500', href: `https://facebook.com/${contactData.contactInfo.facebook}` },
   ]
 
   const onSubmit = async (data) => {
@@ -69,7 +83,8 @@ const Contact = () => {
 
   const openWhatsApp = () => {
     const message = encodeURIComponent('Hi! I would like to book a mehndi session.')
-    window.open(`https://wa.me/919876543210?text=${message}`, '_blank')
+    const whatsappNumber = contactData.contactInfo.whatsapp.replace(/\s/g, '').replace('+', '')
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank')
   }
 
   return (
@@ -144,10 +159,10 @@ const Contact = () => {
               letterSpacing="-2px"
               fontWeight="400"
             >
-              Get In Touch
+              {contactData.sectionTitle}
             </Heading>
             <Text fontSize="xl" color="text.charcoal" maxW="600px" lineHeight="1.8" fontWeight="300">
-              Ready to book your mehndi session? Contact us today and let's create beautiful memories together
+              {contactData.description}
             </Text>
           </MotionBox>
 

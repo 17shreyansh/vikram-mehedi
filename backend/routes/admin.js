@@ -3,8 +3,12 @@ import Gallery from '../models/Gallery.js'
 import Booking from '../models/Booking.js'
 import Service from '../models/Service.js'
 import Contact from '../models/Contact.js'
+import { authenticate } from '../middleware/auth.js'
 
 const router = express.Router()
+
+// Apply authentication middleware to all admin routes
+router.use(authenticate)
 
 // Dashboard overview
 router.get('/dashboard', async (req, res) => {

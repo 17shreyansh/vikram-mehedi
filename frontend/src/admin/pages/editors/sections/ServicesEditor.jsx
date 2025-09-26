@@ -15,21 +15,50 @@ import {
   Select
 } from '@chakra-ui/react'
 
-const ServicesEditor = () => {
-  const [servicesData, setServicesData] = useState({
+const ServicesEditor = ({ pageData, setPageData }) => {
+  const defaultServicesData = {
     sectionTitle: 'Services',
     description: 'Choose from our range of professional mehndi services, each designed to make your occasion truly special',
-    layout: 'expandable', // expandable, grid, list
+    layout: 'expandable',
     showPricing: true,
     showFeatures: true,
     showDuration: true,
     showBookingButton: true,
     defaultExpanded: false,
     animationStyle: 'smooth'
-  })
+  }
+
+  const servicesData = pageData?.sections?.find(s => s.type === 'services')?.data || defaultServicesData
 
   const updateField = (field, value) => {
-    setServicesData(prev => ({ ...prev, [field]: value }))
+    if (!setPageData) return
+    
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const servicesSectionIndex = currentSections.findIndex(s => s.type === 'services')
+      
+      let updatedSections
+      if (servicesSectionIndex >= 0) {
+        updatedSections = currentSections.map((section, index) => 
+          index === servicesSectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'services',
+            title: 'Services Section',
+            order: 2,
+            visible: true,
+            data: { ...defaultServicesData, [field]: value }
+          }
+        ]
+      }
+      
+      return { ...prevData, sections: updatedSections }
+    })
   }
 
   return (

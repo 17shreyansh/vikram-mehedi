@@ -18,11 +18,21 @@ import { getFallbackImage } from '../../utils/fallbackData'
 
 const MotionBox = motion(Box)
 
-const HeroSection = () => {
+const HeroSection = ({ pageContent }) => {
   const { scrollY } = useScroll()
   const y1 = useTransform(scrollY, [0, 300], [0, -50])
   const y2 = useTransform(scrollY, [0, 300], [0, -100])
   const { heroImage, isOnline } = useHeroImage()
+  
+  // Get hero data from pageContent or use defaults
+  const heroData = pageContent?.sections?.find(s => s.type === 'hero')?.data || {
+    tagline: 'Artistry in Every Detail',
+    mainHeading: 'Elegant',
+    subHeading: 'Mehndi Designs',
+    description: 'Transform your celebrations with intricate, breathtaking mehndi artistry. Each creation tells your unique story through timeless patterns and contemporary elegance.',
+    buttonText: 'Book Your Session',
+    buttonLink: '#contact'
+  }
 
   const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
@@ -96,7 +106,7 @@ const HeroSection = () => {
                   letterSpacing="3px"
                   textTransform="uppercase"
                 >
-                  Artistry in Every Detail
+                  {heroData.tagline}
                 </Text>
                 
                 <Heading
@@ -108,7 +118,7 @@ const HeroSection = () => {
                   letterSpacing="-3px"
                   fontWeight="400"
                 >
-                  Elegant
+                  {heroData.mainHeading}
                   <Text 
                     as="span" 
                     display="block" 
@@ -118,7 +128,7 @@ const HeroSection = () => {
                     mt={4}
                     fontWeight="400"
                   >
-                    Mehndi Designs
+                    {heroData.subHeading}
                   </Text>
                 </Heading>
               </MotionBox>
@@ -136,8 +146,7 @@ const HeroSection = () => {
                   mb={{ base: 6, lg: 12 }}
                   fontWeight="300"
                 >
-                  Transform your celebrations with intricate, breathtaking mehndi artistry. 
-                  Each creation tells your unique story through timeless patterns and contemporary elegance.
+                  {heroData.description}
                 </Text>
               </MotionBox>
 
@@ -180,7 +189,7 @@ const HeroSection = () => {
                   }}
                   transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
                 >
-                  Book Your Session
+                  {heroData.buttonText}
                 </Button>
               </MotionBox>
             </VStack>

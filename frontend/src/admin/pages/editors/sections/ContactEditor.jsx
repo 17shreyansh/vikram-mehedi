@@ -15,8 +15,8 @@ import {
   Select
 } from '@chakra-ui/react'
 
-const ContactEditor = () => {
-  const [contactData, setContactData] = useState({
+const ContactEditor = ({ pageData, setPageData }) => {
+  const defaultContactData = {
     sectionTitle: 'Contact Us',
     description: 'Ready to book your session? Get in touch with us today',
     showContactForm: true,
@@ -36,27 +36,55 @@ const ContactEditor = () => {
       phone: '+91 98765 43210',
       email: 'vikram@mehndiart.com',
       address: 'Mumbai, Maharashtra',
-      businessHours: 'Mon-Sun: 9:00 AM - 8:00 PM'
+      businessHours: 'Mon-Sun: 9:00 AM - 8:00 PM',
+      whatsapp: '+91 98765 43210',
+      instagram: '@vikrammehndi',
+      facebook: 'VikramMehndiArt'
     },
-    layout: 'side-by-side' // side-by-side, stacked, form-only
-  })
+    layout: 'side-by-side'
+  }
+
+  const contactData = pageData?.sections?.find(s => s.type === 'contact')?.data || defaultContactData
 
   const updateField = (field, value) => {
-    setContactData(prev => ({ ...prev, [field]: value }))
+    if (!setPageData) return
+    
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const contactSectionIndex = currentSections.findIndex(s => s.type === 'contact')
+      
+      let updatedSections
+      if (contactSectionIndex >= 0) {
+        updatedSections = currentSections.map((section, index) => 
+          index === contactSectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'contact',
+            title: 'Contact Section',
+            order: 5,
+            visible: true,
+            data: { ...defaultContactData, [field]: value }
+          }
+        ]
+      }
+      
+      return { ...prevData, sections: updatedSections }
+    })
   }
 
   const updateFormField = (field, value) => {
-    setContactData(prev => ({
-      ...prev,
-      formFields: { ...prev.formFields, [field]: value }
-    }))
+    const updatedFormFields = { ...contactData.formFields, [field]: value }
+    updateField('formFields', updatedFormFields)
   }
 
   const updateContactInfo = (field, value) => {
-    setContactData(prev => ({
-      ...prev,
-      contactInfo: { ...prev.contactInfo, [field]: value }
-    }))
+    const updatedContactInfo = { ...contactData.contactInfo, [field]: value }
+    updateField('contactInfo', updatedContactInfo)
   }
 
   return (
@@ -236,6 +264,33 @@ const ContactEditor = () => {
                     size="sm"
                     value={contactData.contactInfo.businessHours}
                     onChange={(e) => updateContactInfo('businessHours', e.target.value)}
+                  />
+                </FormControl>
+                
+                <FormControl>
+                  <FormLabel fontSize="sm">WhatsApp</FormLabel>
+                  <Input
+                    size="sm"
+                    value={contactData.contactInfo.whatsapp}
+                    onChange={(e) => updateContactInfo('whatsapp', e.target.value)}
+                  />
+                </FormControl>
+                
+                <FormControl>
+                  <FormLabel fontSize="sm">Instagram Handle</FormLabel>
+                  <Input
+                    size="sm"
+                    value={contactData.contactInfo.instagram}
+                    onChange={(e) => updateContactInfo('instagram', e.target.value)}
+                  />
+                </FormControl>
+                
+                <FormControl>
+                  <FormLabel fontSize="sm">Facebook Page</FormLabel>
+                  <Input
+                    size="sm"
+                    value={contactData.contactInfo.facebook}
+                    onChange={(e) => updateContactInfo('facebook', e.target.value)}
                   />
                 </FormControl>
               </VStack>

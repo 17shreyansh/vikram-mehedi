@@ -18,7 +18,7 @@ import {
 import { FaImage } from 'react-icons/fa'
 
 const HeroEditor = ({ pageData, setPageData }) => {
-  const heroData = pageData?.sections?.find(s => s.type === 'hero')?.data || {
+  const defaultHeroData = {
     tagline: 'Artistry in Every Detail',
     mainHeading: 'Elegant',
     subHeading: 'Mehndi Designs',
@@ -30,17 +30,44 @@ const HeroEditor = ({ pageData, setPageData }) => {
     showScrollIndicator: true
   }
 
+  const heroData = pageData?.sections?.find(s => s.type === 'hero')?.data || defaultHeroData
+
   const updateField = (field, value) => {
-    if (!pageData || !setPageData) return
+    if (!setPageData) return
     
-    const updatedSections = pageData.sections?.map(section => {
-      if (section.type === 'hero') {
-        return { ...section, data: { ...section.data, [field]: value } }
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const heroSectionIndex = currentSections.findIndex(s => s.type === 'hero')
+      
+      let updatedSections
+      if (heroSectionIndex >= 0) {
+        // Update existing hero section
+        updatedSections = currentSections.map((section, index) => 
+          index === heroSectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        // Create new hero section
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'hero',
+            title: 'Hero Section',
+            order: 0,
+            visible: true,
+            data: { ...defaultHeroData, [field]: value }
+          }
+        ]
       }
-      return section
-    }) || []
-    
-    setPageData({ ...pageData, sections: updatedSections })
+      
+      return {
+        ...prevData,
+        slug: 'home',
+        title: 'Home Page',
+        sections: updatedSections
+      }
+    })
   }
 
   return (

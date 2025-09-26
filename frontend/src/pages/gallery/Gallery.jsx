@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -20,6 +20,7 @@ import {
 import { motion } from 'framer-motion'
 import ImageGallery from 'react-image-gallery'
 import { useFallbackData } from '../../hooks/useFallbackData'
+import { pagesAPI } from '../../services/api'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import ScrollToTop from '../../components/common/ScrollToTop'
@@ -30,6 +31,19 @@ const GalleryPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [modalImages, setModalImages] = useState([])
+  const [homePageContent, setHomePageContent] = useState(null)
+
+  useEffect(() => {
+    const fetchHomeContent = async () => {
+      try {
+        const content = await pagesAPI.getBySlug('home')
+        setHomePageContent(content)
+      } catch (error) {
+        console.log('Using default footer content')
+      }
+    }
+    fetchHomeContent()
+  }, [])
 
   const categories = ['All', 'Bridal', 'Arabic', 'Traditional', 'Party']
 
@@ -193,7 +207,7 @@ const GalleryPage = () => {
         </ModalContent>
       </Modal>
 
-      <Footer />
+      <Footer pageContent={homePageContent} />
       <ScrollToTop />
     </Box>
   )

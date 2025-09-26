@@ -11,6 +11,7 @@ const MotionBox = motion(Box)
 
 const About = () => {
   const [pageData, setPageData] = useState(null)
+  const [homePageContent, setHomePageContent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -28,10 +29,14 @@ const About = () => {
   const fetchPageData = async () => {
     try {
       setLoading(true)
-      const data = await pagesAPI.getBySlug('about')
-      setPageData(data)
+      const [aboutData, homeData] = await Promise.all([
+        pagesAPI.getBySlug('about'),
+        pagesAPI.getBySlug('home')
+      ])
+      setPageData(aboutData)
+      setHomePageContent(homeData)
     } catch (err) {
-      console.error('Error fetching about page:', err)
+      console.error('Error fetching page data:', err)
       // Use default data if API fails
       setPageData({
         heroTitle: 'About Me',
@@ -61,7 +66,7 @@ const About = () => {
             <Text color="gray.600">Loading About Page...</Text>
           </VStack>
         </Center>
-        <Footer />
+        <Footer pageContent={homePageContent} />
       </Box>
     )
   }
@@ -254,7 +259,7 @@ const About = () => {
         </Container>
       </Box>
 
-      <Footer />
+      <Footer pageContent={homePageContent} />
       <ScrollToTop />
     </Box>
   )

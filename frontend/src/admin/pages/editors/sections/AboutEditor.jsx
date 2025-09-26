@@ -18,8 +18,8 @@ import {
 } from '@chakra-ui/react'
 import { FaImage } from 'react-icons/fa'
 
-const AboutEditor = () => {
-  const [aboutData, setAboutData] = useState({
+const AboutEditor = ({ pageData, setPageData }) => {
+  const defaultAboutData = {
     tagline: 'About Artist',
     heading: 'Vikram Mehndi',
     description: 'With over 8 years of experience in the art of mehndi, Vikram has become a trusted name for creating stunning, intricate designs that celebrate life\'s most precious moments.',
@@ -33,16 +33,45 @@ const AboutEditor = () => {
       { number: '2500+', label: 'Designs Created' },
       { number: '4.9', label: 'Average Rating' }
     ]
-  })
+  }
+
+  const aboutData = pageData?.sections?.find(s => s.type === 'about')?.data || defaultAboutData
 
   const updateField = (field, value) => {
-    setAboutData(prev => ({ ...prev, [field]: value }))
+    if (!setPageData) return
+    
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const aboutSectionIndex = currentSections.findIndex(s => s.type === 'about')
+      
+      let updatedSections
+      if (aboutSectionIndex >= 0) {
+        updatedSections = currentSections.map((section, index) => 
+          index === aboutSectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'about',
+            title: 'About Section',
+            order: 3,
+            visible: true,
+            data: { ...defaultAboutData, [field]: value }
+          }
+        ]
+      }
+      
+      return { ...prevData, sections: updatedSections }
+    })
   }
 
   const updateStat = (index, field, value) => {
     const updatedStats = [...aboutData.stats]
     updatedStats[index][field] = value
-    setAboutData(prev => ({ ...prev, stats: updatedStats }))
+    updateField('stats', updatedStats)
   }
 
   return (

@@ -41,13 +41,16 @@ router.post('/', auth, async (req, res) => {
 // Update page
 router.put('/:slug', auth, async (req, res) => {
   try {
+    console.log(`Updating page: ${req.params.slug}`, req.body)
     const page = await PageContent.findOneAndUpdate(
       { slug: req.params.slug },
-      req.body,
-      { new: true, upsert: true }
+      { ...req.body, slug: req.params.slug },
+      { new: true, upsert: true, runValidators: true }
     )
+    console.log('Page updated successfully:', page._id)
     res.json(page)
   } catch (error) {
+    console.error('Error updating page:', error)
     res.status(500).json({ error: error.message })
   }
 })

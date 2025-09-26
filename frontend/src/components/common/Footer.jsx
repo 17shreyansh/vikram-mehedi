@@ -19,11 +19,21 @@ import { motion } from 'framer-motion'
 
 const MotionBox = motion(Box)
 
-const Footer = () => {
+const Footer = ({ pageContent }) => {
+  // Get contact data from pageContent or use defaults
+  const contactData = pageContent?.sections?.find(s => s.type === 'contact')?.data?.contactInfo || {
+    phone: '+91 98765 43210',
+    email: 'vikram@mehndiart.com',
+    address: 'Mumbai, Maharashtra',
+    whatsapp: '+91 98765 43210',
+    instagram: '@vikrammehndi',
+    facebook: 'VikramMehndiArt'
+  }
+
   const socialLinks = [
-    { icon: FaFacebook, url: 'https://facebook.com/vikrammehndi', label: 'Facebook', color: 'blue.500' },
-    { icon: FaInstagram, url: 'https://instagram.com/vikrammehndi', label: 'Instagram', color: 'pink.500' },
-    { icon: FaWhatsapp, url: 'https://wa.me/919876543210', label: 'WhatsApp', color: 'green.500' },
+    { icon: FaFacebook, url: `https://facebook.com/${contactData.facebook}`, label: 'Facebook', color: 'blue.500' },
+    { icon: FaInstagram, url: `https://instagram.com/${contactData.instagram.replace('@', '')}`, label: 'Instagram', color: 'pink.500' },
+    { icon: FaWhatsapp, url: `https://wa.me/${contactData.whatsapp.replace(/\s/g, '').replace('+', '')}`, label: 'WhatsApp', color: 'green.500' },
   ]
 
   const quickLinks = [
@@ -226,7 +236,7 @@ const Footer = () => {
               </Box>
               <VStack align="start" spacing={0}>
                 <Text fontSize="sm" opacity={0.8} textTransform="uppercase" letterSpacing="1px">Phone</Text>
-                <Text fontSize="lg" fontWeight="500">+91 98765 43210</Text>
+                <Text fontSize="lg" fontWeight="500">{contactData.phone}</Text>
               </VStack>
             </HStack>
 
@@ -241,7 +251,7 @@ const Footer = () => {
               </Box>
               <VStack align="start" spacing={0}>
                 <Text fontSize="sm" opacity={0.8} textTransform="uppercase" letterSpacing="1px">Email</Text>
-                <Text fontSize="lg" fontWeight="500">vikram@mehndiart.com</Text>
+                <Text fontSize="lg" fontWeight="500">{contactData.email}</Text>
               </VStack>
             </HStack>
 
@@ -256,7 +266,7 @@ const Footer = () => {
               </Box>
               <VStack align="start" spacing={0}>
                 <Text fontSize="sm" opacity={0.8} textTransform="uppercase" letterSpacing="1px">Location</Text>
-                <Text fontSize="lg" fontWeight="500">Mumbai, Maharashtra</Text>
+                <Text fontSize="lg" fontWeight="500">{contactData.address}</Text>
               </VStack>
             </HStack>
           </Grid>

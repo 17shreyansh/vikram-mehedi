@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -21,6 +21,7 @@ import {
 import { motion } from 'framer-motion'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaClock, FaCalendarAlt } from 'react-icons/fa'
 import { getApiUrl } from '../../utils/imageUtils'
+import { pagesAPI } from '../../services/api'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import ScrollToTop from '../../components/common/ScrollToTop'
@@ -37,7 +38,20 @@ const ContactPage = () => {
     message: ''
   })
   const [loading, setLoading] = useState(false)
+  const [pageContent, setPageContent] = useState(null)
   const toast = useToast()
+
+  useEffect(() => {
+    const fetchPageContent = async () => {
+      try {
+        const content = await pagesAPI.getBySlug('home')
+        setPageContent(content)
+      } catch (error) {
+        console.log('Using default contact content')
+      }
+    }
+    fetchPageContent()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -84,11 +98,19 @@ const ContactPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
+  // Get contact data from pageContent or use defaults
+  const contactData = pageContent?.sections?.find(s => s.type === 'contact')?.data?.contactInfo || {
+    phone: '+91 98765 43210',
+    email: 'vikram@mehendi.com',
+    address: 'Mumbai, Maharashtra',
+    whatsapp: '+91 98765 43210'
+  }
+
   const contactInfo = [
-    { icon: FaPhone, title: 'Phone', value: '+91 98765 43210', link: 'tel:+919876543210', color: 'primary.500' },
-    { icon: FaEnvelope, title: 'Email', value: 'vikram@mehendi.com', link: 'mailto:vikram@mehendi.com', color: 'accent.500' },
-    { icon: FaMapMarkerAlt, title: 'Location', value: 'Mumbai, Maharashtra', link: '#', color: 'primary.500' },
-    { icon: FaWhatsapp, title: 'WhatsApp', value: '+91 98765 43210', link: 'https://wa.me/919876543210', color: 'green.500' }
+    { icon: FaPhone, title: 'Phone', value: contactData.phone, link: `tel:${contactData.phone.replace(/\s/g, '')}`, color: 'primary.500' },
+    { icon: FaEnvelope, title: 'Email', value: contactData.email, link: `mailto:${contactData.email}`, color: 'accent.500' },
+    { icon: FaMapMarkerAlt, title: 'Location', value: contactData.address, link: '#', color: 'primary.500' },
+    { icon: FaWhatsapp, title: 'WhatsApp', value: contactData.whatsapp, link: `https://wa.me/${contactData.whatsapp.replace(/\s/g, '').replace('+', '')}`, color: 'green.500' }
   ]
 
   return (
@@ -251,7 +273,7 @@ const ContactPage = () => {
         </Container>
       </Box>
 
-      <Footer />
+      <Footer pageContent={pageContent} />
       <ScrollToTop />
     </Box>
   )

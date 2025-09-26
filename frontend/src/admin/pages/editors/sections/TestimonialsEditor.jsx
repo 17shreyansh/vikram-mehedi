@@ -17,8 +17,8 @@ import {
   NumberInputField
 } from '@chakra-ui/react'
 
-const TestimonialsEditor = () => {
-  const [testimonialsData, setTestimonialsData] = useState({
+const TestimonialsEditor = ({ pageData, setPageData }) => {
+  const defaultTestimonialsData = {
     sectionTitle: 'What Our Clients Say',
     description: 'Read what our satisfied clients have to say about their experience',
     showRatings: true,
@@ -28,11 +28,40 @@ const TestimonialsEditor = () => {
     showDots: true,
     showArrows: true,
     slidesToShow: 3,
-    layout: 'carousel' // carousel, grid, masonry
-  })
+    layout: 'carousel'
+  }
+
+  const testimonialsData = pageData?.sections?.find(s => s.type === 'testimonials')?.data || defaultTestimonialsData
 
   const updateField = (field, value) => {
-    setTestimonialsData(prev => ({ ...prev, [field]: value }))
+    if (!setPageData) return
+    
+    setPageData(prevData => {
+      const currentSections = prevData?.sections || []
+      const testimonialsSectionIndex = currentSections.findIndex(s => s.type === 'testimonials')
+      
+      let updatedSections
+      if (testimonialsSectionIndex >= 0) {
+        updatedSections = currentSections.map((section, index) => 
+          index === testimonialsSectionIndex 
+            ? { ...section, data: { ...section.data, [field]: value } }
+            : section
+        )
+      } else {
+        updatedSections = [
+          ...currentSections,
+          {
+            type: 'testimonials',
+            title: 'Testimonials Section',
+            order: 4,
+            visible: true,
+            data: { ...defaultTestimonialsData, [field]: value }
+          }
+        ]
+      }
+      
+      return { ...prevData, sections: updatedSections }
+    })
   }
 
   return (
