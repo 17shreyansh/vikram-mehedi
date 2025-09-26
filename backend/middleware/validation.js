@@ -51,19 +51,29 @@ export const validateContact = [
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('phone')
-    .matches(/^(\+91)?[6-9]\d{9}$/)
+    .matches(/^(\+91\s?)?[6-9]\d{9}$/)
     .withMessage('Please provide a valid phone number'),
   body('service')
-    .isIn(['bridal', 'arabic', 'party', 'traditional', 'corporate'])
-    .withMessage('Please select a valid service'),
+    .isIn(['Bridal Mehndi', 'Arabic Mehndi', 'Indo-Western', 'Party Mehndi'])
+    .withMessage('Please select a valid service')
+    .customSanitizer(value => {
+      const serviceMap = {
+        'Bridal Mehndi': 'bridal',
+        'Arabic Mehndi': 'arabic',
+        'Indo-Western': 'party',
+        'Party Mehndi': 'party'
+      }
+      return serviceMap[value] || value.toLowerCase()
+    }),
   body('eventDate')
     .optional()
     .isISO8601()
     .toDate(),
   body('message')
+    .optional()
     .trim()
-    .isLength({ min: 10, max: 500 })
-    .withMessage('Message must be between 10 and 500 characters'),
+    .isLength({ min: 1, max: 500 })
+    .withMessage('Message must not exceed 500 characters'),
   handleValidationErrors
 ]
 
