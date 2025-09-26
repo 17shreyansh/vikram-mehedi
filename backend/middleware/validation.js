@@ -3,6 +3,8 @@ import { body, validationResult } from 'express-validator'
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
+    console.error('❌ Validation errors:', errors.array())
+    console.error('📦 Request body:', req.body)
     return res.status(400).json({
       error: 'Validation failed',
       details: errors.array()
@@ -44,36 +46,31 @@ export const validateBooking = [
 export const validateContact = [
   body('name')
     .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters'),
+    .notEmpty()
+    .withMessage('Name is required'),
   body('email')
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('phone')
-    .matches(/^(\+91\s?)?[6-9]\d{9}$/)
-    .withMessage('Please provide a valid phone number'),
+    .trim()
+    .notEmpty()
+    .withMessage('Phone number is required'),
   body('service')
-    .isIn(['Bridal Mehndi', 'Arabic Mehndi', 'Indo-Western', 'Party Mehndi'])
-    .withMessage('Please select a valid service')
+    .optional()
     .customSanitizer(value => {
+      if (!value) return 'bridal'
       const serviceMap = {
         'Bridal Mehndi': 'bridal',
         'Arabic Mehndi': 'arabic',
         'Indo-Western': 'party',
         'Party Mehndi': 'party'
       }
-      return serviceMap[value] || value.toLowerCase()
+      return serviceMap[value] || 'bridal'
     }),
-  body('eventDate')
-    .optional()
-    .isISO8601()
-    .toDate(),
   body('message')
     .optional()
-    .trim()
-    .isLength({ min: 1, max: 500 })
-    .withMessage('Message must not exceed 500 characters'),
+    .trim(),
   handleValidationErrors
 ]
 

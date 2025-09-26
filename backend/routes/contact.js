@@ -39,8 +39,12 @@ router.get('/', async (req, res) => {
 })
 
 // Create new contact message
-router.post('/', validateContact, async (req, res) => {
+router.post('/', (req, res, next) => {
+  console.log('📧 Contact form data received:', req.body)
+  next()
+}, validateContact, async (req, res) => {
   try {
+    console.log('✅ Validation passed, creating contact:', req.body)
     const message = new Contact(req.body)
     await message.save()
     
@@ -50,6 +54,7 @@ router.post('/', validateContact, async (req, res) => {
       data: message 
     })
   } catch (error) {
+    console.error('❌ Contact creation error:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 })
